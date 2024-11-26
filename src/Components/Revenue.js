@@ -1,0 +1,8 @@
+
+const Revenue = (data) => {
+    return(
+        <>
+
+        </>
+    )
+}
