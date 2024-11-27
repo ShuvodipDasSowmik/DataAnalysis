@@ -61,9 +61,18 @@ function App() {
       try {
         const response = await fetch(Data);
         const reader = response.body.getReader();
-        const result = await reader.read();
         const decoder = new TextDecoder("utf-8");
-        const csvData = decoder.decode(result.value);
+        let csvData = '';
+        let done = false;
+
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          if (value) {
+            csvData += decoder.decode(value, { stream: !done });
+          }
+        }
+
 
         const parsedData = Papa.parse(csvData, {
           header: true,
@@ -73,7 +82,7 @@ function App() {
         setData(parsedData);
         setTotalPage(data.length / postPerPage);
 
-      } catch(err){
+      } catch (err) {
         console.log("Failed to fetch Data");
       }
 
@@ -121,7 +130,7 @@ function App() {
     .map(([Country, Revenue]) => ({ Country, Revenue }))
     .sort((a, b) => b.Revenue - a.Revenue);
 
-  
+
   const [xAxis, setXAxis] = useState("Country");
   const [yAxis, setYAxis] = useState("Impressions");
 
@@ -153,11 +162,11 @@ function App() {
       <br />
 
       {/* <GameImpressionPerDay rawData={data}/> */}
-      <div style={{marginLeft: "15vw", display:"inline"}}>
+      <div style={{ marginLeft: "15vw", display: "inline" }}>
         Choose Parameter for X Axis:
       </div>
-    
-      <Dropdown onSelect={(e) => setXAxis(e)} style={{marginLeft: "1vw", display:"inline"}}>
+
+      <Dropdown onSelect={(e) => setXAxis(e)} style={{ marginLeft: "1vw", display: "inline" }}>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {xAxis}
         </Dropdown.Toggle>
@@ -182,15 +191,15 @@ function App() {
 
         </Dropdown.Menu>
       </Dropdown>
-      
-      <br/>
-      <br/>
-      <br/>
 
-      <div style={{marginLeft: "15vw", display:"inline"}}>
+      <br />
+      <br />
+      <br />
+
+      <div style={{ marginLeft: "15vw", display: "inline" }}>
         Select Parameter for Y Axis:
       </div>
-      <Dropdown onSelect={(e) => setYAxis(e)} style={{marginLeft: "1vw", display:"inline"}}>
+      <Dropdown onSelect={(e) => setYAxis(e)} style={{ marginLeft: "1vw", display: "inline" }}>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {yAxis}
         </Dropdown.Toggle>
@@ -216,7 +225,7 @@ function App() {
         </Dropdown.Menu>
       </Dropdown>
 
-      <CustomChart data={data} xAxis={xAxis} yAxis={yAxis}/>
+      <CustomChart data={data} xAxis={xAxis} yAxis={yAxis} />
 
       <Dropdown style={{ float: "right", paddingRight: "5vw", marginTop: "5vh" }}>
 
