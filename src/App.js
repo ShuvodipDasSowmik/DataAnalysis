@@ -173,6 +173,10 @@ function App() {
 
         <Dropdown.Menu>
 
+          <Dropdown.Item eventKey="Day">
+            Day
+          </Dropdown.Item>
+
           <Dropdown.Item eventKey="Country">
             Country
           </Dropdown.Item>
