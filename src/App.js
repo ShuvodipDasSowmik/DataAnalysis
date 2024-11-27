@@ -6,9 +6,9 @@ import { Dropdown } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PieChart from "./Components/PieChart";
-import {CheckBox} from './Style/style.css'
+import { CheckBox } from './Style/style.css'
 import BarChart from "./Components/BarChart";
-import GameImpressionPerDay from './Components/GameImpressionsPerDay'
+import CustomChart from './Components/CustomChart'
 
 
 function App() {
@@ -36,19 +36,46 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
 
-      const response = await fetch(Data);
-      const reader = response.body.getReader();
-      const result = await reader.read();
-      const decoder = new TextDecoder("utf-8");
-      const csvData = decoder.decode(result.value);
+      // try {
+      //   const res = await fetch(API_URL); // Replace with your API URL
+      //   const csvText = await res.text();
 
-      const parsedData = Papa.parse(csvData, {
-        header: true,
-        skipEmptyLines: true,
-      }).data;
+      //   const response = await fetch(Data);
+      //   const reader = response.body.getReader();
+      //   const result = await reader.read();
+      //   const decoder = new TextDecoder("utf-8");
+      //   const csvData = decoder.decode(result.value);
 
-      setData(parsedData);
-      setTotalPage(data.length / postPerPage);
+      //   const parsedData = Papa.parse(csvData, {
+      //     header: true,
+      //     skipEmptyLines: true,
+      //   }).data;
+
+      //   setData(parsedData);
+      //   setTotalPage(data.length / postPerPage);
+
+      // } catch (err) {
+      //   setError("Failed to Fetch Data");
+      // }
+
+      try {
+        const response = await fetch(Data);
+        const reader = response.body.getReader();
+        const result = await reader.read();
+        const decoder = new TextDecoder("utf-8");
+        const csvData = decoder.decode(result.value);
+
+        const parsedData = Papa.parse(csvData, {
+          header: true,
+          skipEmptyLines: true,
+        }).data;
+
+        setData(parsedData);
+        setTotalPage(data.length / postPerPage);
+
+      } catch(err){
+        console.log("Failed to fetch Data");
+      }
 
     };
 
@@ -63,7 +90,7 @@ function App() {
   // useEffect(() => {
   //   console.log(topCountryByRev);
   //   console.log(maxRev);
-    
+
   // })
 
   const nextPage = () => {
@@ -94,6 +121,10 @@ function App() {
     .map(([Country, Revenue]) => ({ Country, Revenue }))
     .sort((a, b) => b.Revenue - a.Revenue);
 
+  
+  const [xAxis, setXAxis] = useState("Country");
+  const [yAxis, setYAxis] = useState("Impressions");
+
   return (
 
     // Filter
@@ -110,20 +141,84 @@ function App() {
           <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown> */}
-      <br/>
-      <br/>
-      <br/>
-      <br/>
-      <PieChart topCountryByRev={topCountryByRev}/>
-      <BarChart rawData={data}/>
+      <br />
+      <br />
+      <br />
+      <br />
+      <PieChart topCountryByRev={topCountryByRev} />
+      <BarChart rawData={data} />
 
-      <br/>
-      <br/>
-      <br/>
+      <br />
+      <br />
+      <br />
 
       {/* <GameImpressionPerDay rawData={data}/> */}
+      <div style={{marginLeft: "15vw", display:"inline"}}>
+        Choose Parameter for X Axis:
+      </div>
+    
+      <Dropdown onSelect={(e) => setXAxis(e)} style={{marginLeft: "1vw", display:"inline"}}>
+        <Dropdown.Toggle variant="success" id="dropdown-basic">
+          {xAxis}
+        </Dropdown.Toggle>
 
-      <Dropdown style={{ float: "right", paddingRight:"5vw", marginTop:"5vh" }}>
+        <Dropdown.Menu>
+
+          <Dropdown.Item eventKey="Country">
+            Country
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="Application">
+            Application
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="Package Name">
+            Package Name
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="Network">
+            Network
+          </Dropdown.Item>
+
+        </Dropdown.Menu>
+      </Dropdown>
+      
+      <br/>
+      <br/>
+      <br/>
+
+      <div style={{marginLeft: "15vw", display:"inline"}}>
+        Select Parameter for Y Axis:
+      </div>
+      <Dropdown onSelect={(e) => setYAxis(e)} style={{marginLeft: "1vw", display:"inline"}}>
+        <Dropdown.Toggle variant="success" id="dropdown-basic">
+          {yAxis}
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+
+          <Dropdown.Item eventKey="Impressions">
+            Impression
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="Est. Revenue">
+            Est. Revenue
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="eCPM">
+            eCPM
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey="Attempts">
+            Attempts
+          </Dropdown.Item>
+
+        </Dropdown.Menu>
+      </Dropdown>
+
+      <CustomChart data={data} xAxis={xAxis} yAxis={yAxis}/>
+
+      <Dropdown style={{ float: "right", paddingRight: "5vw", marginTop: "5vh" }}>
 
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           Filter By
@@ -202,13 +297,13 @@ function App() {
             className="CheckBox"
           />
         </Dropdown.Menu>
-      </Dropdown>      
-      <br/><br/><br/>
+      </Dropdown>
+      <br /><br /><br />
       <DataTable slicedData={slicedData} currentPage={currentPage} totalPage={totalPage} previousPage={previousPage}
         nextPage={nextPage} Show={Show} />
-      <br/>
-      <br/>
-      
+      <br />
+      <br />
+
     </>
   );
 }
