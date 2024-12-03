@@ -1,3 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
+
+*{
+    /* background-color: rgb(184, 168, 200); */
+    font-family: 'Poppins';
+}
+
 .CheckBox{
     padding-left: 3vw;
 }

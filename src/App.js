@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import Papa from 'papaparse';
-import Data from './mediation_report_2024-11-24_09_16_56.csv'
+
 import DataTable from "./Components/DataTable";
 import { Dropdown } from "react-bootstrap";
 import { Form } from "react-bootstrap";
@@ -9,7 +8,14 @@ import PieChart from "./Components/PieChart";
 import { CheckBox } from './Style/style.css'
 import BarChart from "./Components/BarChart";
 import CustomChart from './Components/CustomChart'
+import axios from "axios";
+import RevenueData from "./Components/RevenueData";
 
+
+const REACT_APP_API_KEY = "U_6ufDXDPxfXT5mJr1TXCfBDawPb6mmr3W01UHfLA6tC5gS_R-aTMng9oG4vXLk7wDJL8H_UKPGL3QtereTazI"
+const REACT_APP_URL = "https://r.applovin.com/maxReport"
+
+// dotenv.config();
 
 function App() {
 
@@ -36,56 +42,16 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
 
-      // try {
-      //   const res = await fetch(API_URL); // Replace with your API URL
-      //   const csvText = await res.text();
 
-      //   const response = await fetch(Data);
-      //   const reader = response.body.getReader();
-      //   const result = await reader.read();
-      //   const decoder = new TextDecoder("utf-8");
-      //   const csvData = decoder.decode(result.value);
+      // const url = `${targetUrl}?$api_key=${apiKey}&columns=day,application,package_name,network,country,attempts,responses,fill_rate,impressions,estimated_revenue,ecpm&start=2024-11-17&end=2024-11-19&format=json`
 
-      //   const parsedData = Papa.parse(csvData, {
-      //     header: true,
-      //     skipEmptyLines: true,
-      //   }).data;
-
-      //   setData(parsedData);
-      //   setTotalPage(data.length / postPerPage);
-
-      // } catch (err) {
-      //   setError("Failed to Fetch Data");
-      // }
-
-      try {
-        const response = await fetch(Data);
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let csvData = '';
-        let done = false;
-
-        while (!done) {
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
-          if (value) {
-            csvData += decoder.decode(value, { stream: !done });
-          }
-        }
-
-
-        const parsedData = Papa.parse(csvData, {
-          header: true,
-          skipEmptyLines: true,
-        }).data;
-
-        setData(parsedData);
-        setTotalPage(data.length / postPerPage);
-
-      } catch (err) {
-        console.log("Failed to fetch Data");
-      }
-
+      axios.get("http://localhost:4000/")
+      .then(response => {
+          setData(response.data.results)
+          console.log(response.data.results[10]);
+      })
+      .catch(err => console.log(err))
+      setTotalPage(data.length / postPerPage);
     };
 
     fetchData();
@@ -114,15 +80,15 @@ function App() {
   const revByCountry = {}
 
   data.forEach(item => {
-    const revenue = parseFloat(item["Est. Revenue"]) || 0;
+    const revenue = parseFloat(item["estimated_revenue"]) || 0;
     // if(revenue > maxRev)
     //   setMaxRev(revenue);
 
-    if (revByCountry[item.Country]) {
-      revByCountry[item.Country] += revenue;
+    if (revByCountry[item.country]) {
+      revByCountry[item.country] += revenue;
     }
     else {
-      revByCountry[item.Country] = revenue;
+      revByCountry[item.country] = revenue;
     }
   })
 
@@ -131,13 +97,17 @@ function App() {
     .sort((a, b) => b.Revenue - a.Revenue);
 
 
-  const [xAxis, setXAxis] = useState("Country");
-  const [yAxis, setYAxis] = useState("Impressions");
+  const [xAxis, setXAxis] = useState("country");
+  const [yAxis, setYAxis] = useState("impressions");
 
   return (
 
     // Filter
     <>
+
+      <div className="Header" style={{height:"10vh", textAlign:"center", backgroundColor:"white"}}>
+        <h2 style={{paddingTop:"2vh", backgroundColor:"white"}}>Data Analysis</h2>
+      </div>
 
       {/* <Dropdown>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
@@ -173,23 +143,23 @@ function App() {
 
         <Dropdown.Menu>
 
-          <Dropdown.Item eventKey="Day">
+          <Dropdown.Item eventKey="day">
             Day
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Country">
+          <Dropdown.Item eventKey="country">
             Country
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Application">
+          <Dropdown.Item eventKey="application">
             Application
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Package Name">
+          <Dropdown.Item eventKey="package_name">
             Package Name
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Network">
+          <Dropdown.Item eventKey="network">
             Network
           </Dropdown.Item>
 
@@ -210,19 +180,19 @@ function App() {
 
         <Dropdown.Menu>
 
-          <Dropdown.Item eventKey="Impressions">
+          <Dropdown.Item eventKey="impressions">
             Impression
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Est. Revenue">
+          <Dropdown.Item eventKey="estimated_revenue">
             Est. Revenue
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="eCPM">
+          <Dropdown.Item eventKey="ecpm">
             eCPM
           </Dropdown.Item>
 
-          <Dropdown.Item eventKey="Attempts">
+          <Dropdown.Item eventKey="attempts">
             Attempts
           </Dropdown.Item>
 
@@ -302,13 +272,6 @@ function App() {
             onChange={(e) => setShowECPM(!showECPM)}
             className="CheckBox"
           />
-          <Form.Check
-            type={"checkbox"}
-            id={"winRate"}
-            label={"Win Rate"}
-            onChange={(e) => setShowWinRate(!showWinRate)}
-            className="CheckBox"
-          />
         </Dropdown.Menu>
       </Dropdown>
       <br /><br /><br />
@@ -316,7 +279,6 @@ function App() {
         nextPage={nextPage} Show={Show} />
       <br />
       <br />
-
     </>
   );
 }

@@ -25,13 +25,13 @@ const BarChart = ({ rawData }) => {
     const impByCountry = {}
 
     rawData.forEach(item => {
-        const imp = parseFloat(item.Impressions) || 0;
+        const imp = parseFloat(item.impressions) || 0;
 
-        if (impByCountry[item.Country]) {
-            impByCountry[item.Country] += imp;
+        if (impByCountry[item.country]) {
+            impByCountry[item.country] += imp;
         }
         else {
-            impByCountry[item.Country] = imp;
+            impByCountry[item.country] = imp;
         }
 
     })

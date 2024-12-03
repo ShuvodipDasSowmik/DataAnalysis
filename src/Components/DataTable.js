@@ -1,5 +1,6 @@
 import { Table } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import ReactCountryFlag from "react-country-flag";
 
 const DataTable = ({slicedData, currentPage, totalPage, previousPage, nextPage, Show}) => {
     return (
@@ -20,25 +21,30 @@ const DataTable = ({slicedData, currentPage, totalPage, previousPage, nextPage, 
                                 {Show[6] ?<th style={{textAlign:"center"}}>Impressions</th> : <></>}
                                 {Show[7] ?<th style={{textAlign:"center"}}>Est. Revenue</th> : <></>}
                                 {Show[8] ?<th style={{textAlign:"center"}}>eCPM</th> : <></>}
-                                {Show[9] ?<th style={{textAlign:"center"}}>Win Rate</th> : <></>}
+                                {/* {Show[9] ?<th style={{textAlign:"center"}}>Win Rate</th> : <></>} */}
                             </tr>
                         </thead>
 
                         <tbody>
                             {slicedData.map((row, index) => (
                                 <tr key={index}>
-                                    <td align="center">{row.Day}</td>
-                                    <td align="center">{row.Application}</td>
-                                    {Show[0] ? <td align="center">{row["Package Name"]}</td> : <></>}
-                                    <td align="center">{row.Network}</td>
-                                    {Show[2] ? <td align="center">{row.Country}</td> : <></>}
-                                    {Show[3] ? <td align="center">{row.Attempts}</td> : <></>}
-                                    {Show[4] ? <td align="center">{row.Responses}</td> : <></>}
-                                    {Show[5] ? <td align="center">{row["Fill Rate"] ? (row["Fill Rate"] * 100).toFixed(2) + "%" : "N/A"}</td> : <></>}
-                                    {Show[6] ? <td align="center">{row.Impressions}</td> : <></>}
-                                    {Show[7] ? <td align="center">{row["Est. Revenue"] ? `$${row["Est. Revenue"]}` : "N/A"}</td> : <></>}
-                                    {Show[8] ? <td align="center">{row.eCPM}</td> : <></>}
-                                    {Show[9] ? <td align="center">{row["Win Rate"] ? (row["Win Rate"] * 100).toFixed(2) + "%" : "N/A"}</td> : <></>}
+                                    <td align="center">{row.day}</td>
+                                    <td align="center">{row.application}</td>
+                                    {Show[0] ? <td align="center">{row["package_name"]}</td> : <></>}
+                                    <td align="center">{row.network}</td>
+                                    {Show[2] ? <td align="center">
+
+                                        <ReactCountryFlag style={{width:"70px"}} countryCode={row.country.toUpperCase()} svg/>
+
+                                        {row.country}
+                                    </td> : <></>}
+                                    {Show[3] ? <td align="center">{row.attempts}</td> : <></>}
+                                    {Show[4] ? <td align="center">{row.responses}</td> : <></>}
+                                    {Show[5] ? <td align="center">{row["fill_rate"] ? (row["fill_rate"]*1).toFixed(2) + "%" : "N/A"}</td> : <></>}
+                                    {Show[6] ? <td align="center">{row.impressions}</td> : <></>}
+                                    {Show[7] ? <td align="center">{row["estimated_revenue"] ? `$${row["estimated_revenue"]}` : "N/A"}</td> : <></>}
+                                    {Show[8] ? <td align="center">{(row.ecpm*1).toFixed(2)}</td> : <></>}
+                                    {/* {Show[9] ? <td align="center">{row["Win Rate"] ? (row["Win Rate"] * 100).toFixed(2) + "%" : "N/A"}</td> : <></>} */}
                                 </tr>
                             ))}
                         </tbody>
@@ -50,7 +56,9 @@ const DataTable = ({slicedData, currentPage, totalPage, previousPage, nextPage, 
                 </>
             )
 
-                : (<> </>)}
+                : (<>
+                <h1 style={{fontSize:"20px", textAlign:"center"}}>Retrieving Data Table From API...</h1>
+                </>)}
 
         </>
     )
